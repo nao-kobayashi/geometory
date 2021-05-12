@@ -1,7 +1,8 @@
 use crate::line::Line;
 use crate::types::Point2D;
+use std::hash::{Hash, Hasher};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LineSegment {
     pub x1: f64,
     pub y1: f64,
@@ -47,6 +48,22 @@ impl LineSegment {
     }
 }
 
+impl Hash for LineSegment {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        f64_to_bytes(self.x1).hash(state);
+        f64_to_bytes(self.y1).hash(state);
+        f64_to_bytes(self.x2).hash(state);
+        f64_to_bytes(self.y2).hash(state);
+    }
+}
+
+fn f64_to_bytes(x: f64) -> String {
+    let p = &x as *const f64 as * const [u8;8];
+    let b: [u8;8] = unsafe { *p };
+    println!("{} => {:?}", x, b);
+    format!("{:?}", b)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::line::Line;
@@ -74,14 +91,15 @@ mod tests {
             println!("{:?}", point);
             assert_eq!(point.x, 4.0);
             assert_eq!(point.y, 3.0);
+        } else {
+            assert!(false);
+        }
 
-            if let Some(point) = segment.get_intersection_point_from_segment(&segment2) {
-                println!("{:?}", point);
-                assert_eq!(point.x, 4.0);
-                assert_eq!(point.y, 3.0);
-            } else {
-                assert!(false);
-            }
+
+        if let Some(point) = segment.get_intersection_point_from_segment(&segment2) {
+            println!("{:?}", point);
+            assert_eq!(point.x, 4.0);
+            assert_eq!(point.y, 3.0);
         } else {
             assert!(false);
         }
