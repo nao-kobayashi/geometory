@@ -3,12 +3,12 @@ use crate::types::Point2D;
 use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Clone)]
-pub struct Intersection<'a> {
+pub struct InterSection<'a> {
     segment1: &'a LineSegment,
     segment2: &'a LineSegment,
 }
 
-impl<'a> Intersection<'a> {
+impl<'a> InterSection<'a> {
     pub fn new(segment1: &'a LineSegment, segment2: &'a LineSegment) -> Self {
         Self { segment1, segment2 }
     }
@@ -19,8 +19,9 @@ impl<'a> Intersection<'a> {
     }
 }
 
-impl<'a> PartialEq for Intersection<'a> {
+impl<'a> PartialEq for InterSection<'a> {
     fn eq(&self, other: &Self) -> bool {
+        println!("{:?} {:?}", &self, &other);
         if self.segment1 == other.segment1 && self.segment2 == other.segment2 {
             return true;
         } else if self.segment1 == other.segment2 && self.segment2 == other.segment1 {
@@ -31,9 +32,9 @@ impl<'a> PartialEq for Intersection<'a> {
     }
 }
 
-impl<'a> Eq for Intersection<'a> {}
+impl<'a> Eq for InterSection<'a> {}
 
-impl<'a> Hash for Intersection<'a> {
+impl<'a> Hash for InterSection<'a> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.segment1.hash(state);
         self.segment2.hash(state);
@@ -46,10 +47,10 @@ pub trait IntersectionDirector {
 
 #[cfg(test)]
 mod tests {
-    use crate::line::Line;
     use crate::line_segment::LineSegment;
     use std::collections::HashSet;
-    use crate::intersection::Intersection;
+    use crate::intersection::InterSection;
+    use std::hash::Hash;
 
     #[test]
     fn hash_test() {
@@ -58,9 +59,14 @@ mod tests {
         let segment2 = LineSegment::new(3.0, 6.0, 5.0, 0.0);
         let segment3 = LineSegment::new(0.0, 1.0, 6.0, 4.0);
         let segment4 = LineSegment::new(3.0, 6.0, 5.0, 0.0);
+        let segment5 = LineSegment::new(3.0, 6.0, 5.0, 0.0);
+        let segment6 = LineSegment::new(0.0, 1.0, 6.0, 4.0);
 
-        let intersection1 = Intersection::new(&segment1, &segment2);
-        let intersection2 = Intersection::new(&segment3, &segment4);
+        let intersection1 = InterSection::new(&segment1, &segment2);
+        let intersection2 = InterSection::new(&segment3, &segment4);
+        let intersection3 = InterSection::new(&segment5, &segment6);
+
+        assert_eq!(intersection1, intersection3);
 
         if !hash.contains(&intersection1) {
             hash.insert(intersection1);
@@ -70,6 +76,10 @@ mod tests {
             hash.insert(intersection2);
         }
 
-        assert_eq!(hash.len(), 1);
+        if !hash.contains(&intersection3) {
+            hash.insert(intersection3);
+        }
+
+        assert_eq!(hash.len(), 2);
     }
 }
