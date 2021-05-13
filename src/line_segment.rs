@@ -57,11 +57,11 @@ impl Hash for LineSegment {
     }
 }
 
-fn f64_to_bytes(x: f64) -> String {
+fn f64_to_bytes(x: f64) -> [u8; 8] {
     let p = &x as *const f64 as * const [u8;8];
     let b: [u8;8] = unsafe { *p };
     //println!("{} => {:?}", x, b);
-    format!("{:?}", b)
+    b
 }
 
 #[cfg(test)]
