@@ -21,7 +21,7 @@ impl<'a> InterSection<'a> {
 
 impl<'a> PartialEq for InterSection<'a> {
     fn eq(&self, other: &Self) -> bool {
-        println!("{:?} {:?}", &self, &other);
+        //println!("{:?} {:?}", &self, &other);
         if self.segment1 == other.segment1 && self.segment2 == other.segment2 {
             return true;
         } else if self.segment1 == other.segment2 && self.segment2 == other.segment1 {
@@ -42,15 +42,57 @@ impl<'a> Hash for InterSection<'a> {
 }
 
 pub trait IntersectionDirector {
-    fn execute(segments: &[LineSegment]) -> Vec<InterSection>;
+    fn execute<'a>(&self, segments: &'a [LineSegment]) -> Vec<InterSection<'a>>;
+}
+
+pub struct BruteForceInterSectionDirector {}
+impl IntersectionDirector for BruteForceInterSectionDirector {
+    fn execute<'a>(&self, segments: &'a [LineSegment]) -> Vec<InterSection<'a>> {
+        let mut intersections = Vec::new();
+        for i in 0..segments.len() {
+            let seg1 = &segments[i];
+            for j in i + 1..segments.len() {
+                let seg2 = &segments[j];
+                if seg1.intersects_segment(seg2) {
+                    //println!("i {} j {}", i, j);
+                    intersections.push(InterSection::new(seg1, seg2));
+                }
+            }
+        }
+
+        intersections
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::line_segment::LineSegment;
     use std::collections::HashSet;
-    use crate::intersection::InterSection;
-    use std::hash::Hash;
+    use crate::intersection::{InterSection, IntersectionDirector, BruteForceInterSectionDirector};
+
+    #[test]
+    fn bruteforce_test() {
+        let segment1 = LineSegment::new(0.0, 1.0, 6.0, 4.0);
+        let segment2 = LineSegment::new(-3.0, 4.0, 6.0, 1.0);
+        let segment3 = LineSegment::new(0.0, 4.0, 6.0, 1.0);
+        let segment4 = LineSegment::new(0.0, 10.0, 12.0, 20.0);
+        let segment5 = LineSegment::new(20.0, 1.0, 12.0, 4.0);
+        let segment6 = LineSegment::new(12.0, 4.0, 20.0, 1.0);
+
+        let segments = vec![segment1, segment2, segment3, segment4, segment5, segment6];
+        let director = BruteForceInterSectionDirector {};
+        let intersections = director.execute(&segments);
+        assert_eq!(intersections.len(), 4);
+
+        assert_eq!(intersections[0].segment1, &segments[0]);
+        assert_eq!(intersections[0].segment2, &segments[1]);
+        assert_eq!(intersections[1].segment1, &segments[0]);
+        assert_eq!(intersections[1].segment2, &segments[2]);
+        assert_eq!(intersections[2].segment1, &segments[1]);
+        assert_eq!(intersections[2].segment2, &segments[2]);
+        assert_eq!(intersections[3].segment1, &segments[4]);
+        assert_eq!(intersections[3].segment2, &segments[5]);
+    }
 
     #[test]
     fn hash_test() {
