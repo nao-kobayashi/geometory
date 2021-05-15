@@ -1,6 +1,8 @@
 use crate::line::Line;
+use crate::sweep_line::SweepLine;
 use crate::types::Point2D;
 use std::hash::{Hash, Hasher};
+use std::cmp::Ordering;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LineSegment {
@@ -8,11 +10,18 @@ pub struct LineSegment {
     pub y1: f64,
     pub x2: f64,
     pub y2: f64,
+    comparator: SweepLine,
 }
 
 impl LineSegment {
     pub fn new(x1: f64, y1: f64, x2: f64, y2: f64) -> Self {
-        Self { x1, y1, x2, y2 }
+        Self {
+            x1,
+            y1,
+            x2,
+            y2,
+            comparator: SweepLine::new(),
+        }
     }
 
     pub fn to_line(&self) -> Line {
@@ -46,6 +55,30 @@ impl LineSegment {
 
         segment.to_line().get_intersection_point(&self.to_line())
     }
+
+    pub fn set_sweep_line(&mut self, line_y: f64) {
+        self.comparator.set_y(line_y);
+    }
+
+    fn compare_by_line(&self, other: &LineSegment, line: &Line) -> Option<Ordering> {
+        let p1 = self.to_line().get_intersection_point(&line);
+        let p2 = other.to_line().get_intersection_point(&line);
+
+        let x1 = if let Some(p) = p1 {
+            p.x
+        } else {
+            self.x1
+        };
+
+        let x2 = if let Some(p) = p2 {
+            p.x
+        } else {
+            self.x1
+        };
+
+        x1.partial_cmp(&x2)
+    }
+
 }
 
 impl Hash for LineSegment {
@@ -63,6 +96,29 @@ fn f64_to_bytes(x: f64) -> [u8; 8] {
     //println!("{} => {:?}", x, b);
     b
 }
+
+impl PartialOrd for LineSegment {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let mut ord = self.compare_by_line(other, self.comparator.get_sweep_line());
+        if ord.is_none() || ord.unwrap_or(Ordering::Equal) == Ordering::Equal {
+            ord = self.compare_by_line(other, self.comparator.get_below_line());
+        }
+        ord
+    }
+}
+
+impl Ord for LineSegment {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if let Some(ord) = self.partial_cmp(other) {
+            ord
+        } else {
+            Ordering::Equal
+        }
+    }
+}
+
+impl Eq for LineSegment {}
+
 
 #[cfg(test)]
 mod tests {

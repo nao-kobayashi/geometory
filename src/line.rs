@@ -1,6 +1,6 @@
 use crate::types::Point2D;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 /// ax + by + c = 0
 pub struct Line {
     pub a: f64,

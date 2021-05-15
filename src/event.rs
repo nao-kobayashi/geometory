@@ -106,28 +106,21 @@ mod test {
             }
         }
 
+        let min_seg = LineSegment::new(0.0, 1.0, 6.0, 4.0);
+        let max_seg = LineSegment::new(0.0, 10.0, 12.0, 20.0);
+
         let min = Event {
             event_type: EventType::SegmentStart,
             x: 0.0,
             y: 1.0,
-            segment1: &LineSegment {
-                x1: 0.0,
-                y1: 1.0,
-                x2: 6.0,
-                y2: 4.0,
-            },
+            segment1: &min_seg,
             segment2: None,
         };
         let max = Event {
             event_type: EventType::SegmentEnd,
             x: 12.0,
             y: 20.0,
-            segment1: &LineSegment {
-                x1: 0.0,
-                y1: 10.0,
-                x2: 12.0,
-                y2: 20.0,
-            },
+            segment1: &max_seg,
             segment2: None,
         };
         assert_eq!(queue.get_min_priority().unwrap(), &min);
