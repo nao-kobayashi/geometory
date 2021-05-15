@@ -46,7 +46,7 @@ where
         self.elements.peek()
     }
 
-    pub fn get_min_value(self) -> Vec<T> {
+    pub fn min_sorted(self) -> Vec<T> {
         self.elements.into_sorted_vec()
     }
 }

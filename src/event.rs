@@ -133,7 +133,7 @@ mod test {
         assert_eq!(queue.get_min_priority().unwrap(), &min);
         assert_eq!(queue.get_max_priority().unwrap(), &max);
 
-        for elm in queue.get_min_value().iter() {
+        for elm in queue.min_sorted().iter() {
             println!("{:?}", elm);
         }
     }
