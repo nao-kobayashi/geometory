@@ -58,8 +58,8 @@ impl Hash for LineSegment {
 }
 
 fn f64_to_bytes(x: f64) -> [u8; 8] {
-    let p = &x as *const f64 as * const [u8;8];
-    let b: [u8;8] = unsafe { *p };
+    let p = &x as *const f64 as *const [u8; 8];
+    let b: [u8; 8] = unsafe { *p };
     //println!("{} => {:?}", x, b);
     b
 }
@@ -94,7 +94,6 @@ mod tests {
         } else {
             assert!(false);
         }
-
 
         if let Some(point) = segment.get_intersection_point_from_segment(&segment2) {
             println!("{:?}", point);

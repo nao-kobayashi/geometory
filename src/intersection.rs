@@ -4,8 +4,8 @@ use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Clone)]
 pub struct InterSection<'a> {
-    segment1: &'a LineSegment,
-    segment2: &'a LineSegment,
+    pub segment1: &'a LineSegment,
+    pub segment2: &'a LineSegment,
 }
 
 impl<'a> InterSection<'a> {
@@ -66,9 +66,9 @@ impl IntersectionDirector for BruteForceInterSectionDirector {
 
 #[cfg(test)]
 mod tests {
+    use crate::intersection::{BruteForceInterSectionDirector, InterSection, IntersectionDirector};
     use crate::line_segment::LineSegment;
     use std::collections::HashSet;
-    use crate::intersection::{InterSection, IntersectionDirector, BruteForceInterSectionDirector};
 
     #[test]
     fn bruteforce_test() {
